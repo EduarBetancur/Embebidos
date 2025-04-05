@@ -61,32 +61,50 @@ def set_matrix_color(r, g, b):
     for i in range(NUM_LEDS):
         matrix[i] = (r, g, b)
     matrix.write()
-
 def message(topic, msg):
-    print(msg.decode())
-    mensaje = msg.decode()
-    if mensaje == "ADELANTE":
-        motores.adelante(80)
-    elif mensaje == "ATRAS":
-        motores.atras(80)
-    elif mensaje == "DETENER":
-        motores.detener()
-    elif mensaje == "RGB_ROJO":
-        set_matrix_color(55, 0, 0)
-    elif mensaje == "RGB_VERDE":
-        set_matrix_color(255, 255, 255)
-    elif mensaje == "RGB_AZUL":
-        set_matrix_color(145, 55, 55)
-    elif mensaje == "RGB_APAGAR":
-        set_matrix_color(0, 0, 0)
+    try:
+        # Decodifica y limpia el mensaje recibido
+        command = msg.decode().strip()
+    except Exception as e:
+        print("Error decodificando el mensaje:", e)
+        return
 
-client = MQTTClient("ESP_robot", "192.168.231.9")
+    # Imprime el tópico y el comando recibido para depuración
+    print("Mensaje recibido en '{}': {}".format(topic.decode(), command))
+
+    # Ejecuta la acción correspondiente según el comando recibido
+    if command == "ADELANTE":
+        print("Ejecutando: ADELANTE")
+        motores.adelante(80)
+    elif command == "ATRAS":
+        print("Ejecutando: ATRAS")
+        motores.atras(80)
+    elif command == "DETENER":
+        print("Ejecutando: DETENER")
+        motores.detener()
+    elif command == "RGB_ROJO":
+        print("Cambiando matriz a color ROJO")
+        set_matrix_color(255, 0, 0)
+    elif command == "RGB_VERDE":
+        print("Cambiando matriz a color VERDE")
+        set_matrix_color(0, 255, 0)
+    elif command == "RGB_AZUL":
+        print("Cambiando matriz a color AZUL")
+        set_matrix_color(0, 0, 255)
+    elif command == "RGB_APAGAR":
+        print("Apagando la matriz de LEDs")
+        set_matrix_color(0, 0, 0)
+    else:
+        print("Comando no reconocido:", command)
+
+
+client = MQTTClient("ESP_robot", "192.168.231.212")
 client.set_callback(message)
 
 wifi_connect()
 client.connect()
 print("Client connected")
-client.subscribe(b"comandos")
+client.subscribe(b"comando")
 
 # Configuración del bus I2C para el sensor VL53L0X
 i2c = I2C(0, scl=Pin(22), sda=Pin(21))
