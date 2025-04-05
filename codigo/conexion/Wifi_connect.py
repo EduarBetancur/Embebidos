@@ -80,7 +80,7 @@ def message(topic, msg):
     elif mensaje == "RGB_APAGAR":
         set_matrix_color(0, 0, 0)
 
-client = MQTTClient("ESP_robot", "192.168.28.9")
+client = MQTTClient("ESP_robot", "192.168.231.9")
 client.set_callback(message)
 
 wifi_connect()
